@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>MySql Auto Insert</title>
+</head>
+<body>
+
+    <form>
+        
+     <span>
+            <label for="host">Host</label>
+            <input type="txt" name="host" placeholder="localhost" id="host" value='localhost' required>
+     </span>
+
+      <span>
+            <label for="user">Username</label>
+            <input type="txt" name="user" placeholder="username" id="username" value="root" required>
+     </span>
+
+  
+      <span>
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="password" id="password"  required>
+     </span>
+      
+      <span>
+            <label for="database">Database Name</label>
+            <input type="txt" name="database" placeholder="database name" id="database"   required>
+     </span>
+      
+      <span>
+            <label for="table">Table Name</label>
+            <input type="txt" name="table" placeholder="table name" id="table"  required>
+     </span>
+        
+      <span>
+            <label for="file">Import Excel File</label>
+            <input type="file" name="file" id="file" required>
+     </span>
+     
+     <span>
+        <input type="submit" value="Process" id="submit">
+     </span>
+
+     <span class="hide" id="status">
+     </span>
+       
+     <span class="hide more" id="more">
+         error detials...
+     </span>
+     
+    </form>
+
+    <script>
+
+        const electron = require('electron')
+        const {ipcRenderer} = electron
+
+       
+
+        const status = document.getElementById('status')
+
+        const form = document.querySelector('form')
+        const host = document.getElementById('host')
+        const username = document.getElementById('username')
+        const password = document.getElementById('password')
+        const database = document.getElementById('database')
+        const table = document.getElementById('table')
+        const file = document.getElementById('file')
+        const more = document.getElementById('more')
+
+        form.addEventListener('submit',(event)=>{
+            event.preventDefault()
+            const payload = []
+            payload.push(host.value)
+            payload.push(username.value)
+            payload.push(password.value)
+            payload.push(database.value)
+            payload.push(table.value)
+            payload.push(file.files[0].path)
+
+            console.log(payload)
+            ipcRenderer.send('data',payload)
+        })
+
+        ipcRenderer.on('asynchronous-message', function (evt, message) {
+            console.log(message)
+            if(message == 'inserted'){
+                status.innerHTML = message
+                status.classList.replace('hide','ok')
+                status.classList.replace('error','ok')
+
+                setTimeout(()=>{
+                    status.classList.replace('ok','hide')
+                },3000)
+
+            }else{
+                status.innerHTML = message
+                status.classList.replace('hide','error')
+
+               
+
+            }
+
+
+        });
+
+    </script>
+
+</body>
+</html>
